@@ -10,9 +10,17 @@ Platformy.Preload.prototype = {
 		this.load.tilemap('map1', 'assets/tilemaps/map1.json', null, Phaser.Tilemap.TILED_JSON);
 
 		// The image assets
-		this.load.image('player', 'assets/images/player.png');
+		// this.load.image('player', 'assets/images/player/player.png');
+		this.load.image('player_duck', 'assets/images/player/player_duck.png');
+		//70 x 92
+		this.load.spritesheet('player', 'assets/images/player/player.png', 70, 92, 5);
+
 		this.load.image('tiles', 'assets/images/tiles.png');
-		this.load.image('sky', 'assets/images/bg.png');
+		this.load.image('background', 'assets/images/bg.png');
+		this.load.image('sky', 'assets/images/sky.png');
+
+		this.load.image('boxItem', 'assets/images/boxItem.png');
+		this.load.image('boxEmpty', 'assets/images/boxEmpty.png');
 
 	},
 	create: function() {
