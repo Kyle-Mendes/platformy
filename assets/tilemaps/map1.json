@@ -98,6 +98,7 @@
                  "name":"itemBlock",
                  "properties":
                     {
+                     "bumpedSprite":"boxEmpty",
                      "sprite":"boxItem",
                      "type":"itemBlock"
                     },
@@ -115,6 +116,7 @@
                  "name":"itemBlock",
                  "properties":
                     {
+                     "bumpedSprite":"boxEmpty",
                      "sprite":"boxItem",
                      "type":"itemBlock"
                     },
@@ -132,6 +134,7 @@
                  "name":"itemBlock",
                  "properties":
                     {
+                     "bumpedSprite":"boxEmpty",
                      "sprite":"boxItem",
                      "type":"itemBlock"
                     },
@@ -149,6 +152,7 @@
                  "name":"itemBlock",
                  "properties":
                     {
+                     "bumpedSprite":"boxEmpty",
                      "sprite":"boxItem",
                      "type":"itemBlock"
                     },

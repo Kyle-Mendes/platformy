@@ -52,11 +52,9 @@ Platformy.Game.prototype = {
 	    this.player.animations.add('walk');
 
 	    //  And this starts the animation playing by using its key ("walk")
-	    //  30 is the frame rate (30fps)
-	    //  true means it will loop when it finishes
 	    this.player.animations.play('walk', 10, true);
 
-		this.game.physics.p2.enableBody(this.player, true);
+		this.game.physics.p2.enableBody(this.player);
 		this.player.body.fixedRotation = true;
 		this.game.physics.p2.gravity.y = 1500;
 		this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -158,12 +156,19 @@ Platformy.Game.prototype = {
 		}
 	},
 	playerCollision: function(player) {
+		var game = this.game;
 		//If the player is below the box, swap the sprite
 		//@todo: get the "to load" sprite from the sprite's properties in tiled
 		//@todo: trigger coin / item to come out of the box (from tiled too?)
 		if(this.y < player.y) {
-			this.loadTexture('boxEmpty');
+			this.loadTexture(this.bumpedSprite);
+			//@todo: make this a function of the sprite class?
+			// game.getCoin(this);
 		}
+	},
+	getCoin: function(block) {
+		this.game.add.sprite(block.x, block.y-70, 'coin');
+		console.log('poo');
 	},
 	update: function() {
 		var playerCollision = this.playerCollision;

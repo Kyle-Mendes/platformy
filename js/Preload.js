@@ -12,7 +12,6 @@ Platformy.Preload.prototype = {
 		// The image assets
 		// this.load.image('player', 'assets/images/player/player.png');
 		this.load.image('player_duck', 'assets/images/player/player_duck.png');
-		//70 x 92
 		this.load.spritesheet('player', 'assets/images/player/player.png', 70, 92, 5);
 
 		this.load.image('tiles', 'assets/images/tiles.png');
@@ -22,6 +21,7 @@ Platformy.Preload.prototype = {
 		this.load.image('boxItem', 'assets/images/boxItem.png');
 		this.load.image('boxEmpty', 'assets/images/boxEmpty.png');
 
+		this.load.image('coin', 'assets/images/coin.png');
 	},
 	create: function() {
 		welcomeMessage = this.game.add.text(175, 50, 'Platformy!', { font: '50px Arial', fill: '#fff' });
