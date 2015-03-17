@@ -47,12 +47,11 @@ Platformy.Game.prototype = {
 		//
 		// @todo: calculate player position based of it's head
 		this.player = this.game.add.sprite(300, 1000, 'player');
-		//  Here we add a new animation called 'walk'
-	    //  Because we didn't give any other parameters it's going to make an animation from all available frames in the 'mummy' sprite sheet
-	    this.player.animations.add('walk');
 
-	    //  And this starts the animation playing by using its key ("walk")
-	    this.player.animations.play('walk', 10, true);
+		//  Here we add a new animation called 'walk'
+	    //  Because we didn't give any other parameters it's going to make an animation from all available frames in the sprite sheet
+	    this.player.animations.add('walk');
+	    this.player.animations.add('idle', [0]);
 
 		this.game.physics.p2.enableBody(this.player);
 		this.player.body.fixedRotation = true;
@@ -166,12 +165,24 @@ Platformy.Game.prototype = {
 			// game.getCoin(this);
 		}
 	},
+	checkIfDead: function(player) {
+		if (player.y > this.game.world.height) {
+			this.takeLife(player);
+		}
+	},
+	takeLife: function(player) {
+		//@todo Fix the placement to load from map
+		//@todo do we need to pass in the player?
+		//@ todo LOSE A LIFE
+		player.reset(300, 1100);
+	},
 	getCoin: function(block) {
 		this.game.add.sprite(block.x, block.y-70, 'coin');
 		console.log('poo');
 	},
 	update: function() {
 		var playerCollision = this.playerCollision;
+		this.checkIfDead(this.player, this.game);
 
 		// Makes the character jump, you have to let go to jump again.
 		// @todo: calculate jump height based off of how long the button is pressed
@@ -192,17 +203,24 @@ Platformy.Game.prototype = {
 
 		// @todo: Make it so you don't have to let go of a direction to toggle sprint
 		if(this.cursors.left.isDown) {
+		    this.player.animations.play('walk', 10, true);
+		    this.player.scale.x = -1;
 			if(this.cursors.left.shiftKey) {
 				this.move('left', 1.4)
 			} else {
 				this.move('left');
 			}
 		} else if(this.cursors.right.isDown) {
+		    this.player.animations.play('walk', 10, true);
+		    this.player.scale.x = 1;
 			if(this.cursors.right.shiftKey) {
 				this.move('right', 1.4)
 			} else {
 				this.move('right');
 			}
+		} else {
+			// If we're not moving, don't play the walk animation
+		    this.player.animations.play('idle', 2, true);
 		}
 	}
 };
