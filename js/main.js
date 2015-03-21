@@ -1,6 +1,6 @@
 var Platformy = Platformy || {};
 
-Platformy.game = new Phaser.Game(1080, 600, Phaser.AUTO, '');
+Platformy.game = new Phaser.Game(1080, 900, Phaser.AUTO, '');
 
 Platformy.game.state.add('Boot', Platformy.Boot);
 Platformy.game.state.add('Preload', Platformy.Preload);

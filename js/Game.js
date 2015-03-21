@@ -8,20 +8,18 @@ var Platformy = Platformy || {},
 Platformy.Game = function() {};
 
 Platformy.Game.prototype = {
-	init: function(mapIndex) {
-		this.mapIndex = mapIndex;
+	init: function(payload) {
+		this.mapIndex = payload.map;
+		this.playerProperties = payload.player;
+		console.log(payload);
 	},
 	create: function() {
-		this.map = this.game.add.tilemap('map1');
+		this.map = this.game.add.tilemap(this.mapIndex);
 		this.game.world.setBounds(0, 0, this.map.widthInPixels, this.game.heightInPixels);
 		this.game.physics.p2.setBoundsToWorld(true, true, true, true, false);
 
 		//adding our physics system
 		this.game.physics.startSystem(Phaser.Physics.P2JS);
-
-		//  Turn on impact events for the world, without this we get no collision callbacks
-		// this.game.physics.p2.setImpactEvents(true);
-
 
 		//Adding the tilesets
 		this.map.addTilesetImage('tiles', 'tiles');
@@ -46,7 +44,10 @@ Platformy.Game.prototype = {
 		// add the player to the world
 		//
 		// @todo: calculate player position based of it's head
-		this.player = this.game.add.sprite(300, 1000, 'player');
+		this.player = this.game.add.sprite(this.map.properties.playerStartX, this.map.properties.playerStartY, 'player');
+
+		// Assign the player properties from map to map
+		this.player.properties = this.playerProperties;
 
 		//  Here we add a new animation called 'walk'
 	    //  Because we didn't give any other parameters it's going to make an animation from all available frames in the sprite sheet
@@ -60,6 +61,16 @@ Platformy.Game.prototype = {
 
 		//camera follows the player
 		this.game.camera.follow(this.player);
+
+		// HUD
+		// @todo: make this better...
+		// @todo: Group probably isn't right
+		// @todo: load #s as a sprite sheet, use player.properties to append the right numbers in
+		hud = this.game.add.group();
+		hud.fixedToCamera = true;
+		hud.create(70, 20, 'hud_player');
+		hud.create(800, 20, 'hud_coin');
+		hud.scale.set(.5, .5);
 
 		// Additional Controls
 		leftKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -96,6 +107,11 @@ Platformy.Game.prototype = {
 		});
 	},
 	//@todo: change this to a "create" function that takes a key (block) as an arg.
+	//@todo: have it just load ALL types?
+	//    For each object in map.objects..
+	//        if object.properties.type != createdTypes
+	//            create(type)
+	//            add to createdTypes
 	createBlocks: function() {
 		//create any blocks on the map
 		this.blocks = this.game.add.group();
@@ -155,30 +171,46 @@ Platformy.Game.prototype = {
 		}
 	},
 	playerCollision: function(player) {
-		var game = this.game;
+		//A function to get the contents of a block
+		this.getContents =  function(player) {
+
+			//If it's a coin, play an animation and collect it.
+			if(this.contents == 'coin' && !this.opened) {
+				//@todo: allow for blocks with multiple coins
+				var centerX = this.x - (this.width / 2);
+				var above = this.y - this.height - 17; //17 is the height of the coin
+				coin = this.game.add.sprite(centerX, above, 'coin');
+				player.sprite.properties.coins += 1;
+
+				collectCoin = this.game.add.tween(coin);
+
+				collectCoin.to({
+					y: this.y - 140
+				}, 200);
+			    collectCoin.start();
+			    collectCoin.onComplete.add(function() {
+			    	coin.destroy();
+			    })
+			    this.opened = true;
+			}
+		}
+
 		//If the player is below the box, swap the sprite
-		//@todo: get the "to load" sprite from the sprite's properties in tiled
-		//@todo: trigger coin / item to come out of the box (from tiled too?)
 		if(this.y < player.y) {
 			this.loadTexture(this.bumpedSprite);
-			//@todo: make this a function of the sprite class?
-			// game.getCoin(this);
+			this.getContents(player);
 		}
 	},
 	checkIfDead: function(player) {
-		if (player.y > this.game.world.height) {
+		if (player.y > this.game.world.height && player.properties.lives > 0) {
 			this.takeLife(player);
+		} else if (player.properties.lives <= 0) {
+			this.gameOver();
 		}
 	},
 	takeLife: function(player) {
-		//@todo Fix the placement to load from map
-		//@todo do we need to pass in the player?
-		//@ todo LOSE A LIFE
-		player.reset(300, 1100);
-	},
-	getCoin: function(block) {
-		this.game.add.sprite(block.x, block.y-70, 'coin');
-		console.log('poo');
+		player.reset(this.map.properties.playerStartX, this.map.properties.playerStartY);
+		player.properties.lives -= 1;
 	},
 	update: function() {
 		var playerCollision = this.playerCollision;

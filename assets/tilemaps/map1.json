@@ -117,6 +117,7 @@
                  "properties":
                     {
                      "bumpedSprite":"boxEmpty",
+                     "contents":"coin",
                      "sprite":"boxItem",
                      "type":"itemBlock"
                     },
@@ -162,6 +163,24 @@
                  "width":0,
                  "x":1190,
                  "y":980
+                }, 
+                {
+                 "gid":163,
+                 "height":0,
+                 "id":23,
+                 "name":"exitSign",
+                 "properties":
+                    {
+                     "sprite":"signExit",
+                     "targetMap":"map2",
+                     "type":"exit"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":3425.5504587156,
+                 "y":1187.29357798165
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -170,7 +189,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":23,
+ "nextobjectid":24,
  "orientation":"orthogonal",
  "properties":
     {
