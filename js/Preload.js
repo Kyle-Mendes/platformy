@@ -7,7 +7,9 @@ Platformy.Preload.prototype = {
 		//load game assets
 
 		// The maps
+		// @todo: Can these be loaded in as part of the game preload?
 		this.load.tilemap('map1', 'assets/tilemaps/map1.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map2', 'assets/tilemaps/map2.json', null, Phaser.Tilemap.TILED_JSON);
 
 		// The image assets
 		// this.load.image('player', 'assets/images/player/player.png');

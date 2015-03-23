@@ -15,10 +15,12 @@ Platformy.Game.prototype = {
 	},
 	create: function() {
 		this.map = this.game.add.tilemap(this.mapIndex);
+		console.log(this.map);
 		this.game.world.setBounds(0, 0, this.map.widthInPixels, this.game.heightInPixels);
 		this.game.physics.p2.setBoundsToWorld(true, true, true, true, false);
 
 		//adding our physics system
+		//@todo: why isn't this working?
 		this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 		//Adding the tilesets
@@ -26,12 +28,15 @@ Platformy.Game.prototype = {
 
 		//create layers
 		sky = this.game.add.tileSprite(0, 0, this.map.widthInPixels, this.map.heightInPixels, "sky");
+		//adds the background image
+		//@todo: grab this from the map properties
 		background = this.game.add.tileSprite(0, this.map.heightInPixels-720, this.map.widthInPixels, this.map.heightInPixels, "background");
 		this.backgroundLayer = this.map.createLayer('Background');
 		this.platformLayer = this.map.createLayer('Platforms');
 
 		//adding objects
 		this.createBlocks();
+		this.createExits();
 
 		// Setting map collisions
 		this.map.setCollisionBetween(1, 2000, true, this.platformLayer);
@@ -48,6 +53,7 @@ Platformy.Game.prototype = {
 
 		// Assign the player properties from map to map
 		this.player.properties = this.playerProperties;
+		console.log('loaded the player', this.player);
 
 		//  Here we add a new animation called 'walk'
 	    //  Because we didn't give any other parameters it's going to make an animation from all available frames in the sprite sheet
@@ -84,7 +90,7 @@ Platformy.Game.prototype = {
 		map.objects[layer].forEach(function(element){
 			if(element.properties.type === type) {
 				//Phaser uses top left, Tiled bottom left so we have to adjust
-				element.y -= map.tileHeight;
+				element.y -= map.tileHeight/2;
 				result.push(element);
 			}
 		});
@@ -114,10 +120,9 @@ Platformy.Game.prototype = {
 	//            add to createdTypes
 	createBlocks: function() {
 		//create any blocks on the map
-		this.blocks = this.game.add.group();
 		var game = this.game;
+		this.blocks = game.add.group();
 
-		var blocks;
 		result = this.findObjectsByType('itemBlock', this.map, 'Objects');
 		result.forEach(function(element) {
 			this.createFromTiledObject(element, this.blocks);
@@ -128,6 +133,22 @@ Platformy.Game.prototype = {
 			game.physics.p2.enableBody(block);
 			block.body.data.gravityScale = 0;
 			block.body.dynamic = false;
+		});
+	},
+	createExits: function() {
+		//@todo: remove this when we have an all-encompassing one
+		var game = this.game;
+		this.exits = game.add.group();
+
+		result = this.findObjectsByType('exit', this.map, 'Objects');
+		result.forEach(function(element) {
+			this.createFromTiledObject(element, this.exits);
+		}, this);
+
+		//Sets physics on the body.  Don't move when colliding
+		this.exits.forEach(function(exit) {
+			game.physics.p2.enableBody(exit);
+			exit.body.dynamic = false;
 		});
 	},
 	checkIfCanJump: function() {
@@ -212,8 +233,21 @@ Platformy.Game.prototype = {
 		player.reset(this.map.properties.playerStartX, this.map.properties.playerStartY);
 		player.properties.lives -= 1;
 	},
+	changeMap: function(player) {
+		var properties = player.sprite.properties;
+		var payload = {
+			map: this.targetMap,
+			player: {
+				coins: properties.coins,
+				lives: properties.lives
+			}
+		}
+		this.game.state.start('Game', false, false, payload);
+	},
 	update: function() {
 		var playerCollision = this.playerCollision;
+		var changeMap = this.changeMap;
+
 		this.checkIfDead(this.player, this.game);
 
 		// Makes the character jump, you have to let go to jump again.
@@ -231,6 +265,12 @@ Platformy.Game.prototype = {
 		// Callback function for when the player hits a block
 		this.blocks.forEach(function(block) {
 			block.body.onBeginContact.add(playerCollision, block)
+		});
+
+		// If the player touches an exit, start changing maps
+		this.exits.forEach(function(exit) {
+			exit.body.onBeginContact.add(changeMap, exit);
+			// console.log(exit);
 		});
 
 		// @todo: Make it so you don't have to let go of a direction to toggle sprint
