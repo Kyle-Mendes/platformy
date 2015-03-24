@@ -21,7 +21,7 @@ Platformy.Preload.prototype = {
 		this.load.image('background', 'assets/images/bg.png');
 		this.load.image('sky', 'assets/images/sky.png');
 
-		// Blocs
+		// Blocks
 		this.load.image('boxItem', 'assets/images/boxItem.png');
 		this.load.image('boxEmpty', 'assets/images/boxEmpty.png');
 		this.load.image('signExit', 'assets/images/signExit.png');
@@ -32,6 +32,8 @@ Platformy.Preload.prototype = {
 		// HUD Icons
 		this.load.image('hud_coin', 'assets/images/hud/hud_coin.png');
 		this.load.image('hud_player', 'assets/images/hud/hud_player.png');
+		this.load.image('hud_x', 'assets/images/hud/hud_x.png');
+		this.load.spritesheet('hud_numbers', 'assets/images/hud/hud_numbers.png', 32, 40);
 	},
 	create: function() {
 		welcomeMessage = this.game.add.text(175, 50, 'Platformy!', { font: '50px Arial', fill: '#fff' });

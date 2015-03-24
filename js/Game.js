@@ -3,6 +3,10 @@ var Platformy = Platformy || {},
 	rightKey,
 	upKey,
 	runKey,
+	livesDigitOne,
+	livesDigitTwo,
+	coinsDigitOne,
+	coinsDigitTwo,
 	letGoOfJump = true;
 
 Platformy.Game = function() {};
@@ -75,8 +79,16 @@ Platformy.Game.prototype = {
 		hud = this.game.add.group();
 		hud.fixedToCamera = true;
 		hud.create(70, 20, 'hud_player');
+		hud.create(130, 28, 'hud_x');
+		livesDigitOne = hud.create(160, 22, 'hud_numbers', 0);
+		livesDigitTwo = hud.create(192, 22, 'hud_numbers', 0);
+
 		hud.create(800, 20, 'hud_coin');
-		hud.scale.set(.5, .5);
+		hud.create(860, 28, 'hud_x');
+		coinsDigitOne = hud.create(890, 22, 'hud_numbers', 0);
+		coinsDigitTwo = hud.create(922, 22, 'hud_numbers', 0);
+		hud.scale.set(.8, .8);
+		this.updateHud(this.player);
 
 		// Additional Controls
 		leftKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -151,6 +163,10 @@ Platformy.Game.prototype = {
 			exit.body.dynamic = false;
 		});
 	},
+	updateHud: function(player) {
+		livesDigitTwo.frame = player.properties.lives;
+		coinsDigitTwo.frame = player.properties.coins;
+	},
 	checkIfCanJump: function() {
 		var yAxis = p2.vec2.fromValues(0, 1);
 		var result = false;
@@ -194,7 +210,6 @@ Platformy.Game.prototype = {
 	playerCollision: function(player) {
 		//A function to get the contents of a block
 		this.getContents =  function(player) {
-
 			//If it's a coin, play an animation and collect it.
 			if(this.contents == 'coin' && !this.opened) {
 				//@todo: allow for blocks with multiple coins
@@ -202,6 +217,7 @@ Platformy.Game.prototype = {
 				var above = this.y - this.height - 17; //17 is the height of the coin
 				coin = this.game.add.sprite(centerX, above, 'coin');
 				player.sprite.properties.coins += 1;
+				Platformy.Game.prototype.updateHud(player.sprite);
 
 				collectCoin = this.game.add.tween(coin);
 
@@ -232,6 +248,7 @@ Platformy.Game.prototype = {
 	takeLife: function(player) {
 		player.reset(this.map.properties.playerStartX, this.map.properties.playerStartY);
 		player.properties.lives -= 1;
+		this.updateHud(player);
 	},
 	changeMap: function(player) {
 		var properties = player.sprite.properties;
@@ -270,7 +287,6 @@ Platformy.Game.prototype = {
 		// If the player touches an exit, start changing maps
 		this.exits.forEach(function(exit) {
 			exit.body.onBeginContact.add(changeMap, exit);
-			// console.log(exit);
 		});
 
 		// @todo: Make it so you don't have to let go of a direction to toggle sprint
