@@ -164,8 +164,20 @@ Platformy.Game.prototype = {
 		});
 	},
 	updateHud: function(player) {
-		livesDigitTwo.frame = player.properties.lives;
-		coinsDigitTwo.frame = player.properties.coins;
+		var lives = player.properties.lives,
+			coins = player.properties.coins;
+
+		/**
+		 * Lives and coins are drawn by using a sprite sheet with numbers 0..9
+		 * they are both drawn using 2 digit numbers (00..99)
+		 * To get the first digit, we divide by 10 and round down. (19 / 10 = 1.9 ~ 1)
+		 * To get the second digit, we divide by ten, and then use the remainder. (12 % 10 = 2)
+		 */
+		livesDigitOne.frame = Math.floor(lives / 10);
+		livesDigitTwo.frame = lives % 10;
+
+		coinsDigitOne.frame = Math.floor(coins / 10);
+		coinsDigitTwo.frame = coins % 10;
 	},
 	checkIfCanJump: function() {
 		var yAxis = p2.vec2.fromValues(0, 1);
@@ -208,34 +220,61 @@ Platformy.Game.prototype = {
 		}
 	},
 	playerCollision: function(player) {
+		//@todo: can this all be pulled into a prototype?
 		//A function to get the contents of a block
 		this.getContents =  function(player) {
 			//If it's a coin, play an animation and collect it.
 			if(this.contents == 'coin' && !this.opened) {
-				//@todo: allow for blocks with multiple coins
 				var centerX = this.x - (this.width / 2);
 				var above = this.y - this.height - 17; //17 is the height of the coin
-				coin = this.game.add.sprite(centerX, above, 'coin');
+				// Add a coin sprite and animate it
+				this.animateCoin(centerX, above);
+
+				//@todo: split this into another function.  It does too much.
+				if (player.sprite.properties.coins == 99) {
+					Platformy.Game.prototype.gainLife(player.sprite);
+					player.sprite.properties.coins = 0;
+				}
 				player.sprite.properties.coins += 1;
+
+				// Update the HUD to reflect the new coin count
 				Platformy.Game.prototype.updateHud(player.sprite);
 
-				collectCoin = this.game.add.tween(coin);
-
-				collectCoin.to({
-					y: this.y - 140
-				}, 200);
-			    collectCoin.start();
-			    collectCoin.onComplete.add(function() {
-			    	coin.destroy();
-			    })
-			    this.opened = true;
+				// Remove a coin from the block
+			    this.removeCoin();
+			} else {
+				this.loadTexture(this.bumpedSprite);
 			}
+		};
+		this.animateCoin = function(x, y) {
+			coin = this.game.add.sprite(x, y, 'coin');
+			collectCoin = this.game.add.tween(coin);
+
+			collectCoin.to({
+				y: y - 100
+			}, 200);
+		    collectCoin.start();
+		    collectCoin.onComplete.add(function() {
+		    	coin.destroy();
+		    });
 		}
+		this.removeCoin = function() {
+			this.coins -= 1;
+			if (this.coins === 0) {
+				this.opened = true;
+				this.loadTexture(this.bumpedSprite);
+			}
+		};
 
 		//If the player is below the box, swap the sprite
 		if(this.y < player.y) {
-			this.loadTexture(this.bumpedSprite);
 			this.getContents(player);
+		}
+	},
+	gainLife: function(player) {
+		if(player.properties.lives < 99) {
+			player.properties.lives += 1;
+			this.updateHud(player);
 		}
 	},
 	checkIfDead: function(player) {
