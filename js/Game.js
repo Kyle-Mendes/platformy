@@ -1,3 +1,14 @@
+/**
+ * TODO:
+ * Add enemies
+ * Make a game over function / state
+ * Fix all todos
+ * World bounds would be nice
+ * make a BG / fix the image bg
+ * new levels
+ * items? buttons? boxes for buttons?
+ */
+
 var Platformy = Platformy || {},
 	leftKey,
 	rightKey,
