@@ -23,11 +23,13 @@ Platformy.Preload.prototype = {
 
 		// Blocks
 		this.load.image('boxItem', 'assets/images/boxItem.png');
+		this.load.image('boxCoin', 'assets/images/boxCoin.png');
 		this.load.image('boxEmpty', 'assets/images/boxEmpty.png');
 		this.load.image('signExit', 'assets/images/signExit.png');
 
 		// Items
 		this.load.image('coin', 'assets/images/coin.png');
+		this.load.image('life', 'assets/images/life.png');
 
 		// HUD Icons
 		this.load.image('hud_coin', 'assets/images/hud/hud_coin.png');

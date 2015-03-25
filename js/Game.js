@@ -3,6 +3,7 @@ var Platformy = Platformy || {},
 	rightKey,
 	upKey,
 	runKey,
+	lives,
 	livesDigitOne,
 	livesDigitTwo,
 	coinsDigitOne,
@@ -15,11 +16,9 @@ Platformy.Game.prototype = {
 	init: function(payload) {
 		this.mapIndex = payload.map;
 		this.playerProperties = payload.player;
-		console.log(payload);
 	},
 	create: function() {
 		this.map = this.game.add.tilemap(this.mapIndex);
-		console.log(this.map);
 		this.game.world.setBounds(0, 0, this.map.widthInPixels, this.game.heightInPixels);
 		this.game.physics.p2.setBoundsToWorld(true, true, true, true, false);
 
@@ -71,6 +70,9 @@ Platformy.Game.prototype = {
 
 		//camera follows the player
 		this.game.camera.follow(this.player);
+
+		// Group that will hold any 1Ups that are generated
+		lives = this.game.add.group();
 
 		// HUD
 		// @todo: make this better...
@@ -220,44 +222,59 @@ Platformy.Game.prototype = {
 		}
 	},
 	playerCollision: function(player) {
+		var game = Platformy.Game.prototype;
 		//@todo: can this all be pulled into a prototype?
 		//A function to get the contents of a block
 		this.getContents =  function(player) {
+			var centerX = this.x - (this.width / 2);
+			var above = this.y - this.height - 17; //17 is the height of the coin
+
 			//If it's a coin, play an animation and collect it.
 			if(this.contents == 'coin' && !this.opened) {
-				var centerX = this.x - (this.width / 2);
-				var above = this.y - this.height - 17; //17 is the height of the coin
+
 				// Add a coin sprite and animate it
 				this.animateCoin(centerX, above);
 
 				//@todo: split this into another function.  It does too much.
 				if (player.sprite.properties.coins == 99) {
-					Platformy.Game.prototype.gainLife(player.sprite);
+					game.gainLife(player.sprite);
 					player.sprite.properties.coins = 0;
 				}
 				player.sprite.properties.coins += 1;
 
 				// Update the HUD to reflect the new coin count
-				Platformy.Game.prototype.updateHud(player.sprite);
+				game.updateHud(player.sprite);
 
 				// Remove a coin from the block
 			    this.removeCoin();
+			} else if (this.contents == 'life' & !this.opened) {
+				this.generateLife(this);
 			} else {
 				this.loadTexture(this.bumpedSprite);
 			}
 		};
 		this.animateCoin = function(x, y) {
+			//@todo: coins are sticking behind if you hit two blocks at once (remove alpha to test)
 			coin = this.game.add.sprite(x, y, 'coin');
 			collectCoin = this.game.add.tween(coin);
 
 			collectCoin.to({
-				y: y - 100
+				y: y - 100,
+				alpha: 0
 			}, 200);
 		    collectCoin.start();
 		    collectCoin.onComplete.add(function() {
 		    	coin.destroy();
 		    });
-		}
+		};
+		this.generateLife = function(block) {
+			var x = block.x - 22,
+				y = block.y - 83;
+			life = lives.create(x, y, 'life');
+			Platformy.game.physics.p2.enableBody(life);
+			life.body.velocity.x = 300;
+			this.loadTexture(this.bumpedSprite);
+		};
 		this.removeCoin = function() {
 			this.coins -= 1;
 			if (this.coins === 0) {
@@ -266,15 +283,18 @@ Platformy.Game.prototype = {
 			}
 		};
 
-		//If the player is below the box, swap the sprite
+		//If the player is below the box when they collide, get the contents
 		if(this.y < player.y) {
 			this.getContents(player);
 		}
 	},
-	gainLife: function(player) {
-		if(player.properties.lives < 99) {
-			player.properties.lives += 1;
-			this.updateHud(player);
+	gainLife: function(object) {
+		if (!!object.sprite && object.sprite.key == 'player') {
+			if(object.sprite.properties.lives < 99) {
+				object.sprite.properties.lives += 1;
+				Platformy.Game.prototype.updateHud(object.sprite);
+				life.destroy();
+			}
 		}
 	},
 	checkIfDead: function(player) {
@@ -301,8 +321,9 @@ Platformy.Game.prototype = {
 		this.game.state.start('Game', false, false, payload);
 	},
 	update: function() {
-		var playerCollision = this.playerCollision;
-		var changeMap = this.changeMap;
+		var playerCollision = this.playerCollision,
+			changeMap = this.changeMap,
+			gainLife = this.gainLife;
 
 		this.checkIfDead(this.player, this.game);
 
@@ -326,6 +347,13 @@ Platformy.Game.prototype = {
 		// If the player touches an exit, start changing maps
 		this.exits.forEach(function(exit) {
 			exit.body.onBeginContact.add(changeMap, exit);
+		});
+
+		lives.forEach(function(life) {
+			life.body.onBeginContact.add(gainLife, life);
+			// @todo: do the velocity better.  please.
+			// @todo: make the 1up rotate as it moves
+			life.body.velocity.x = 200;
 		});
 
 		// @todo: Make it so you don't have to let go of a direction to toggle sprint
