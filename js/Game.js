@@ -362,7 +362,7 @@ Platformy.Game.prototype = {
 			 * The player is holding jump, and the timer hasn't reached 10 frames yet
 			 * So, we jeep adding to his jump velocity so he gets a little higher.
 			 */
-			this.player.body.velocity.y -=50;
+			this.player.body.velocity.y -=60;
 			jumpTimer += 1;
 		} else if(!this.cursors.up.isDown && !this.checkIfCanJump()) {
 			/**
