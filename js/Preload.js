@@ -10,6 +10,7 @@ Platformy.Preload.prototype = {
 		// @todo: Can these be loaded in as part of the game preload?
 		this.load.tilemap('map1', 'assets/tilemaps/map1.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.tilemap('map2', 'assets/tilemaps/map2.json', null, Phaser.Tilemap.TILED_JSON);
+		this.load.tilemap('map3', 'assets/tilemaps/map3.json', null, Phaser.Tilemap.TILED_JSON);
 
 		// The image assets
 		// this.load.image('player', 'assets/images/player/player.png');
@@ -51,7 +52,7 @@ Platformy.Preload.prototype = {
 
 		if (this.game.input.activePointer.isDown) {
 			var payload = {
-				map: 'map1',
+				map: 'map3',
 				player: {
 					lives: 3,
 					coins: 0

@@ -10,6 +10,7 @@
  * make a BG / fix the image bg
  * new levels
  * items? buttons? boxes for buttons?
+ * weird friction on boxes
  */
 
 var Platformy = Platformy || {},
@@ -90,9 +91,6 @@ Platformy.Game.prototype = {
 		lives = this.game.add.group();
 
 		// HUD
-		// @todo: make this better...
-		// @todo: Group probably isn't right
-		// @todo: load #s as a sprite sheet, use player.properties to append the right numbers in
 		hud = this.game.add.group();
 		hud.fixedToCamera = true;
 		hud.create(70, 20, 'hud_player');
@@ -120,6 +118,7 @@ Platformy.Game.prototype = {
 			if(element.properties.type === type) {
 				//Phaser uses top left, Tiled bottom left so we have to adjust
 				element.y -= map.tileHeight/2;
+				element.x += map.tileHeight/2;
 				result.push(element);
 			}
 		});
