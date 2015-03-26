@@ -54,8 +54,8 @@ Platformy.Preload.prototype = {
 			var payload = {
 				map: 'map1',
 				player: {
-					lives: 98,
-					coins: 98
+					lives: 3,
+					coins: 0
 				}
 			};
 			this.state.start('Game', true, false, payload);
