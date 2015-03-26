@@ -237,8 +237,19 @@ Platformy.Game.prototype = {
 			}
 		}
 	},
+	/**
+	 * Checks the objects that the player collides with, and then does "stuff".
+	 * If the player hits a block, tries to empty it.
+	 * If the player hits a life, it collects it.
+	 *
+	 * Also is responsible for the animations surrounding these interactions.
+	 * Perhaps does too much...
+	 *
+	 * @param  player
+	 */
 	playerCollision: function(player) {
-		var game = Platformy.Game.prototype;
+		var game = Platformy.Game.prototype;  //"this" is the object we collide with.  So we need to define "game"
+
 		//@todo: can this all be pulled into a prototype?
 		//A function to get the contents of a block
 		this.getContents =  function(player) {
@@ -253,7 +264,7 @@ Platformy.Game.prototype = {
 
 				//@todo: split this into another function.  It does too much.
 				if (player.sprite.properties.coins == 99) {
-					game.gainLife(player.sprite);
+					game.gainLife(player);
 					player.sprite.properties.coins = 0;
 				}
 				player.sprite.properties.coins += 1;
@@ -305,15 +316,32 @@ Platformy.Game.prototype = {
 			this.getContents(player);
 		}
 	},
-	gainLife: function(object) {
+	/**
+	 * Adds one to the player's life if, if lives < 99
+	 *
+	 * @param  object    The object that the life collided with || just the player
+	 *                   If the object != the player, we do nothing
+	 *
+	 * @param fromItem   If the life is an item the player collided with, this will exits.
+	 *                   If it exists, we delete it from the map after adding a life.
+	 * @return null
+	 */
+	gainLife: function(object, fromItem) {
 		if (!!object.sprite && object.sprite.key == 'player') {
 			if(object.sprite.properties.lives < 99) {
 				object.sprite.properties.lives += 1;
 				Platformy.Game.prototype.updateHud(object.sprite);
-				life.destroy();
+				if (fromItem) {
+					life.destroy();
+				}
 			}
 		}
 	},
+	/**
+	 * Check if the player has any lives left.  If it doesn't call the gameover function.  Else, take a life.
+	 * @param  player    The player
+	 * @return null
+	 */
 	checkIfDead: function(player) {
 		if (player.y > this.game.world.height && player.properties.lives > 0) {
 			this.takeLife(player);
@@ -321,11 +349,22 @@ Platformy.Game.prototype = {
 			this.gameOver();
 		}
 	},
+	/**
+	 * Takes a life from the player
+	 */
 	takeLife: function(player) {
 		player.reset(this.map.properties.playerStartX, this.map.properties.playerStartY);
 		player.properties.lives -= 1;
 		this.updateHud(player);
 	},
+	/**
+	 * Changes the map when the player touches an exit sign.
+	 * Also constructs a payload to give to the next map.
+	 * Sends over the players coins and lives, and the target map.
+	 *
+	 * @param  player
+	 * @return null
+	 */
 	changeMap: function(player) {
 		var properties = player.sprite.properties;
 		var payload = {
