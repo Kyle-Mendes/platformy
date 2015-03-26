@@ -344,16 +344,38 @@ Platformy.Game.prototype = {
 
 		this.checkIfDead(this.player, this.game);
 
-		// Makes the character jump, you have to let go to jump again.
-		// @todo: calculate jump height based off of how long the button is pressed
+		/**
+		 * Makes the character jump, you have to let go to jump again.
+		 * The long you press down the jump button, the higher the player will jump (to a point)
+		 */
 		if(this.cursors.up.isDown && this.checkIfCanJump() && letGoOfJump) {
+			/** When the player presses jump, they are on the ground, and let god of jump
+			 * Allow them to jump.
+			 * Their y velocity will naturally decay due to gravity
+			 * starts a jump counter, and sets that they haven't let go of jump yet.
+			 */
 			this.player.body.velocity.y = -525;
 			letGoOfJump = false;
 			jumpTimer += 1;
 		} else if(this.cursors.up.isDown && jumpTimer < 10) {
+			/**
+			 * The player is holding jump, and the timer hasn't reached 10 frames yet
+			 * So, we jeep adding to his jump velocity so he gets a little higher.
+			 */
 			this.player.body.velocity.y -=50;
 			jumpTimer += 1;
-		} else if (!this.cursors.up.isDown) {
+		} else if(!this.cursors.up.isDown && !this.checkIfCanJump()) {
+			/**
+			 * The player let go of jump, but they haven't touched the ground yet
+			 * So, we set the jump timer past to 100 so pressing up again won't let
+			 * him jump again in the air
+			 */
+			jumpTimer = 100;
+		} else if (!this.cursors.up.isDown && this.checkIfCanJump()) {
+			/**
+			 * The player has let go of jump, and touched the ground
+			 * So, we set let go of jump to true, and the timer to 0 so they can jump again.
+			 */
 			letGoOfJump = true;
 			jumpTimer = 0;
 		}

@@ -52,7 +52,7 @@ Platformy.Preload.prototype = {
 
 		if (this.game.input.activePointer.isDown) {
 			var payload = {
-				map: 'map3',
+				map: 'map1',
 				player: {
 					lives: 3,
 					coins: 0
