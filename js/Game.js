@@ -1,6 +1,9 @@
 /**
  * TODO:
  * Add enemies
+ * add more animations
+ * make sprites die off camera?
+ * make the box collisions not be rounded
  * Make a game over function / state
  * Fix all todos
  * World bounds would be nice
@@ -47,6 +50,7 @@ Platformy.Game.prototype = {
 		background = this.game.add.tileSprite(0, this.map.heightInPixels-720, this.map.widthInPixels, this.map.heightInPixels, "background");
 		this.backgroundLayer = this.map.createLayer('Background');
 		this.platformLayer = this.map.createLayer('Platforms');
+		this.foregroundLayer = this.map.createLayer('Foreground');
 
 		//adding objects
 		this.createBlocks();
@@ -67,7 +71,6 @@ Platformy.Game.prototype = {
 
 		// Assign the player properties from map to map
 		this.player.properties = this.playerProperties;
-		console.log('loaded the player', this.player);
 
 		//  Here we add a new animation called 'walk'
 	    //  Because we didn't give any other parameters it's going to make an animation from all available frames in the sprite sheet
@@ -77,6 +80,7 @@ Platformy.Game.prototype = {
 		this.game.physics.p2.enableBody(this.player);
 		this.player.body.fixedRotation = true;
 		this.game.physics.p2.gravity.y = 1500;
+		this.game.physics.p2.friction = .5;
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
 		//camera follows the player
@@ -260,6 +264,7 @@ Platformy.Game.prototype = {
 			    this.removeCoin();
 			} else if (this.contents == 'life' & !this.opened) {
 				this.generateLife(this);
+				this.opened = true;
 			} else {
 				this.loadTexture(this.bumpedSprite);
 			}
