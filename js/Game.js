@@ -23,6 +23,7 @@ var Platformy = Platformy || {},
 	livesDigitTwo,
 	coinsDigitOne,
 	coinsDigitTwo,
+	jumpTimer = 0,
 	letGoOfJump = true;
 
 Platformy.Game = function() {};
@@ -82,6 +83,7 @@ Platformy.Game.prototype = {
 		this.player.body.fixedRotation = true;
 		this.game.physics.p2.gravity.y = 1500;
 		this.game.physics.p2.friction = .5;
+		this.game.physics.p2.restitution = 0;
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
 		//camera follows the player
@@ -345,10 +347,15 @@ Platformy.Game.prototype = {
 		// Makes the character jump, you have to let go to jump again.
 		// @todo: calculate jump height based off of how long the button is pressed
 		if(this.cursors.up.isDown && this.checkIfCanJump() && letGoOfJump) {
-			this.player.body.velocity.y = -1050;
+			this.player.body.velocity.y = -525;
 			letGoOfJump = false;
+			jumpTimer += 1;
+		} else if(this.cursors.up.isDown && jumpTimer < 10) {
+			this.player.body.velocity.y -=50;
+			jumpTimer += 1;
 		} else if (!this.cursors.up.isDown) {
 			letGoOfJump = true;
+			jumpTimer = 0;
 		}
 
 		// Parallax
